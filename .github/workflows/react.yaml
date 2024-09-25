@@ -1,0 +1,41 @@
+name: reactapplication CICD
+
+on:
+  push:
+    branches: [ "tejas" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: reactjs application
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+        cache: 'npm'
+    - run: |
+           git config --global user.email "example@tejas.com"
+           git config --global user.name "tejas"    
+    - run: npm install  
+    - run: npm install -g create-react-app
+    - run: npm ci
+    - run: npm install gh-pages --save-devgit
+    - run: npm run build
+    - run: git add -f build/
+    - run: git status
+    - run: git commit -m "p2"   
+    - name: Install AWS CLI
+      run: |
+           sudo apt-get install awscli
+    - name: Upload to S3
+      run: |
+           aws s3 cp build/ s3://githubactionss377/ --recursive
+      env:
+       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+       AWS_REGION: us-east-1
